@@ -77,10 +77,13 @@ func (a *alternative) String() string {
 	return "alt{" + a.left.String() + "," + a.right.String() + "}"
 }
 
-// TERM ::= RUNE | '(' ALTERNATIVE ')'
+// term ::= rune | '(' alternative ')'
 func parseTerm(input *iterator) (node, error) {
 	if input.peek() == 0 {
 		return nil, errors.New("unexpected EOF")
+	}
+	if input.peek() == ')' {
+		return nil, errors.New("unexpected ')'")
 	}
 	if input.peek() == '(' {
 		input.next()
@@ -97,7 +100,7 @@ func parseTerm(input *iterator) (node, error) {
 	return &char, nil
 }
 
-// QUANTIFIED ::= TERM | TERM '*' | TERM '?'
+// quantified ::= term | term '*' | term '?'
 func parseQuantified(input *iterator) (node, error) {
 	term, err := parseTerm(input)
 	if err != nil {
@@ -114,7 +117,7 @@ func parseQuantified(input *iterator) (node, error) {
 	return term, nil
 }
 
-// CONCATENATION ::= QUANTIFIED | QUANTIFIED CONCATENATION
+// concatenation ::= quantified | quantified concatenation
 func parseConcatenation(input *iterator) (node, error) {
 	left, err := parseQuantified(input)
 	if err != nil {
@@ -130,7 +133,7 @@ func parseConcatenation(input *iterator) (node, error) {
 	return left, nil
 }
 
-// ALTERNATIVE ::= CONCATENATION | CONCATENATION '|' ALTERNATIVE
+// alternative ::= concatenation | concatenation '|' alternative
 func parseAlternative(input *iterator) (node, error) {
 	left, err := parseConcatenation(input)
 	if err != nil {
@@ -147,13 +150,34 @@ func parseAlternative(input *iterator) (node, error) {
 	return left, nil
 }
 
+// regex ::= alternative '\0'
 func parse(regex string) (node, error) {
-	return parseAlternative(&iterator{chars: []rune(regex), pos: 0})
+	input := &iterator{chars: []rune(regex), pos: 0}
+	res, err := parseAlternative(input)
+	if err != nil {
+		return nil, err
+	}
+	if input.peek() != 0 {
+		return nil, errors.New("unexpected '" + string(input.peek()) + "'")
+	}
+	return res, nil
 }
 
 func main() {
-	a, e := parse("a(b|c)*d?")
+	var (
+		a node
+		e error
+	)
+	a, e = parse("a(b|c)*d?")
 	fmt.Println(a, e)
 	a, e = parse("a(b?|c?).d")
+	fmt.Println(a, e)
+	a, e = parse("a")
+	fmt.Println(a, e)
+	a, e = parse("")
+	fmt.Println(a, e)
+	a, e = parse(")a")
+	fmt.Println(a, e)
+	a, e = parse("a(bc))")
 	fmt.Println(a, e)
 }
