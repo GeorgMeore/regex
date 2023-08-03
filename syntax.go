@@ -84,7 +84,7 @@ func parseTerm(input *iterator) (node, error) {
 	}
 	if input.peek() == '(' {
 		input.next()
-		alt, err := parseAlternative(input)
+		alt, err := parseAlt(input)
 		if err != nil {
 			return nil, err
 		}
@@ -115,13 +115,13 @@ func parseQuantified(input *iterator) (node, error) {
 }
 
 // concatenation ::= quantified | quantified concatenation
-func parseConcatenation(input *iterator) (node, error) {
+func parseConcat(input *iterator) (node, error) {
 	left, err := parseQuantified(input)
 	if err != nil {
 		return nil, err
 	}
 	if input.peek() != '|' && input.peek() != ')' && input.peek() != 0 {
-		right, err := parseConcatenation(input)
+		right, err := parseConcat(input)
 		if err != nil {
 			return nil, err
 		}
@@ -131,14 +131,14 @@ func parseConcatenation(input *iterator) (node, error) {
 }
 
 // alternative ::= concatenation | concatenation '|' alternative
-func parseAlternative(input *iterator) (node, error) {
-	left, err := parseConcatenation(input)
+func parseAlt(input *iterator) (node, error) {
+	left, err := parseConcat(input)
 	if err != nil {
 		return nil, err
 	}
 	if input.peek() == '|' {
 		input.next()
-		right, err := parseAlternative(input)
+		right, err := parseAlt(input)
 		if err != nil {
 			return nil, err
 		}
@@ -150,7 +150,7 @@ func parseAlternative(input *iterator) (node, error) {
 // regex ::= alternative '\0'
 func parse(regex string) (node, error) {
 	input := &iterator{chars: []rune(regex), pos: 0}
-	res, err := parseAlternative(input)
+	res, err := parseAlt(input)
 	if err != nil {
 		return nil, err
 	}
