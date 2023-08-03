@@ -1,7 +1,5 @@
 package main
 
-import "errors"
-
 // input iterator
 type iterator struct {
 	chars []rune
@@ -74,13 +72,23 @@ func (a *alternative) String() string {
 	return "alt{" + a.left.String() + "," + a.right.String() + "}"
 }
 
+// parsing error
+type parsingError struct {
+	wanted string
+	got    rune
+}
+
+func (e parsingError) Error() string {
+	if e.got == 0 {
+		return "wanted: " + e.wanted + ", got: EOF"
+	}
+	return "wanted: " + e.wanted + ", got: '" + string(e.got) + "'"
+}
+
 // term ::= rune | '(' alternative ')'
 func parseTerm(input *iterator) (node, error) {
-	if input.peek() == 0 {
-		return nil, errors.New("unexpected EOF")
-	}
-	if input.peek() == ')' {
-		return nil, errors.New("unexpected ')'")
+	if !isTermChar(input.peek()) {
+		return nil, parsingError{"a letter or '('", input.peek()}
 	}
 	if input.peek() == '(' {
 		input.next()
@@ -88,13 +96,22 @@ func parseTerm(input *iterator) (node, error) {
 		if err != nil {
 			return nil, err
 		}
-		if input.next() != ')' {
-			return nil, errors.New("')' expected")
+		if input.peek() != ')' {
+			return nil, parsingError{"')'", input.peek()}
 		}
+		input.next()
 		return alt, nil
 	}
 	char := char(input.next())
 	return &char, nil
+}
+
+func isTermChar(c rune) bool {
+	switch c {
+	case '|', ')', 0, '*', '?':
+		return false
+	}
+	return true
 }
 
 // quantified ::= term | term '*' | term '?'
@@ -120,7 +137,7 @@ func parseConcat(input *iterator) (node, error) {
 	if err != nil {
 		return nil, err
 	}
-	if input.peek() != '|' && input.peek() != ')' && input.peek() != 0 {
+	if isTermChar(input.peek()) {
 		right, err := parseConcat(input)
 		if err != nil {
 			return nil, err
@@ -155,7 +172,7 @@ func parse(regex string) (node, error) {
 		return nil, err
 	}
 	if input.peek() != 0 {
-		return nil, errors.New("unexpected '" + string(input.peek()) + "'")
+		return nil, parsingError{"EOF", input.peek()}
 	}
 	return res, nil
 }
