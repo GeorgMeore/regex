@@ -11,13 +11,13 @@ type nfa struct {
 	out *state
 }
 
-// -|c|->
+// -[c]->
 func compileChar(c *char) nfa {
 	s := &state{c: rune(*c), next: nil}
 	return nfa{in: s, out: s}
 }
 
-// -|0|->-|0|->
+// -[0]->-[0]->
 //   |`->--.
 //   `<-t--'
 func compileStar(s *star) nfa {
@@ -28,7 +28,7 @@ func compileStar(s *star) nfa {
 	return nfa{in: sin, out: sout}
 }
 
-// -|0|-->--|0|->
+// -[0]-->--[0]->
 //   `>--t---^
 func compileOpt(o *optional) nfa {
 	t := compile(o.term)
@@ -46,7 +46,7 @@ func compileConcat(c *concatenation) nfa {
 }
 
 //   .->--r-->.
-// -|0|      |0|->
+// -[0]      [0]->
 //   `->--l-->'
 func compileAlt(a *alternative) nfa {
 	l, r := compile(a.left), compile(a.right)
