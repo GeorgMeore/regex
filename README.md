@@ -17,33 +17,26 @@ matches a given expression.
 There are characters that have special meaning: `(`, `)`, `?`, `*`, `|`
 
 1. UTF8 runes that have no special meaning match themselves.
-
 For example `a` matches the character `a`.
 
-1. You can use quantifiers: `?` (one or zero) and `*` (zero or more):
-
-For example `ab*` matches `a`, `ab`, `abb`, ...
+1. You can use quantifiers: `?` (one or zero) and `*` (zero or more).
+For example `ab*` matches `a`, `ab`, `abb`, ... .
 
 1. You can concatenate expressions by writing them one after another.
-
 If you take two expressions `E1` and `E2` and write them together: `E1E2`
 the resulting expression will match any string that is a concatenation of a string
 that matches `E1` and a string that matches `E2`.
-
 For example `ab` matches the string `ab`.
 
-1. You can create union expressions using the `|` symbol.
-
+1. You can create union expressions using the alternation symbol `|`.
 If you take two expressions `E1` and `E2` and join them with `|`: `E1|E2`
 the resulting expression will match any string that matches either `E1` or `E2`.
-
 For example `ab|bc` matches strings `ab` and `bc`.
 
 Priorities from higher to lower go as follows: quantifiers -> concatenation -> alternation.
-
 You can use parentheses (`()`) for grouping.
 
-## Example usage:
+## Example usage
 
 This function takes a regexp string and a list of strings
 and returns the array of matching results (or the error if the regexp is malformed).
