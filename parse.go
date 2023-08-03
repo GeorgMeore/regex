@@ -85,6 +85,14 @@ func (e parsingError) Error() string {
 	return "wanted: " + e.wanted + ", got: '" + string(e.got) + "'"
 }
 
+func isTermChar(c rune) bool {
+	switch c {
+	case '|', ')', 0, '*', '?':
+		return false
+	}
+	return true
+}
+
 // term ::= rune | '(' alternative ')'
 func parseTerm(input *iterator) (node, error) {
 	if !isTermChar(input.peek()) {
@@ -104,14 +112,6 @@ func parseTerm(input *iterator) (node, error) {
 	}
 	char := char(input.next())
 	return &char, nil
-}
-
-func isTermChar(c rune) bool {
-	switch c {
-	case '|', ')', 0, '*', '?':
-		return false
-	}
-	return true
 }
 
 // quantified ::= term | term '*' | term '?'
