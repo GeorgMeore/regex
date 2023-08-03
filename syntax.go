@@ -1,9 +1,6 @@
 package main
 
-import (
-	"errors"
-	"fmt"
-)
+import "errors"
 
 // input iterator
 type iterator struct {
@@ -161,23 +158,4 @@ func parse(regex string) (node, error) {
 		return nil, errors.New("unexpected '" + string(input.peek()) + "'")
 	}
 	return res, nil
-}
-
-func main() {
-	var (
-		a node
-		e error
-	)
-	a, e = parse("a(b|c)*d?")
-	fmt.Println(a, e)
-	a, e = parse("a(b?|c?).d")
-	fmt.Println(a, e)
-	a, e = parse("a")
-	fmt.Println(a, e)
-	a, e = parse("")
-	fmt.Println(a, e)
-	a, e = parse(")a")
-	fmt.Println(a, e)
-	a, e = parse("a(bc))")
-	fmt.Println(a, e)
 }
