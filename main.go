@@ -1,25 +1,26 @@
 package main
 
-import "fmt"
-
-func test(regex string, inputs ...string) {
-	n, e := parse(regex)
-	if e != nil {
-		fmt.Println(e)
-		return
-	}
-	fmt.Println(n)
-	comp := compile(n)
-	for _, input := range inputs {
-		fmt.Println(input, match(&comp, input))
-	}
-}
+import (
+	"os"
+	"fmt"
+	"bufio"
+)
 
 func main() {
-	test("a(b|c)*d?", "abd", "abcd", "abcbc", "ad", "a", "aa")
-	test("a(b?|c?).d")
-	test("a", "a", "aa", "")
-	test("")
-	test(")a")
-	test("a(bc))")
+	if len(os.Args) != 2 {
+		fmt.Println("usage: match REGEX")
+		os.Exit(1)
+	}
+	ast, err := parse(os.Args[1])
+	if err != nil {
+		fmt.Println("error: regex parsing failed:", err)
+		os.Exit(1)
+	}
+	regex := compile(ast)
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		if match(&regex, scanner.Text()) {
+			fmt.Println(scanner.Text())
+		}
+	}
 }
