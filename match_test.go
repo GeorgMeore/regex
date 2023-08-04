@@ -40,11 +40,10 @@ var cases = []testCase{
 
 func TestMatch(t *testing.T) {
 	for _, c := range cases {
-		ast, err := parse(c.regex)
+		regex, err := build(c.regex)
 		if err != nil {
 			t.Errorf("parsing failed: %s", err)
 		}
-		regex := compile(ast)
 		for _, i := range c.inputs {
 			if match(&regex, i.in) != i.res {
 				t.Errorf("wrong results: %s, %s", c.regex, i.in)

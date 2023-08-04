@@ -43,11 +43,10 @@ and returns the array of matching results (or the error if the regexp is malform
 
 ```
 func patternMatch(pat string, in []string) ([]bool, error) {
-	ast, err := parse(pat)
+	regex, err := build(pat)
 	if err != nil {
 		return nil, err
 	}
-	regex := compile(ast)
 	res := make([]bool, len(in))
 	for i, s := range in {
 		res[i] = match(&regex, s)
