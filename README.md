@@ -42,7 +42,7 @@ This function takes a regexp string and a list of strings
 and returns the array of matching results (or the error if the regexp is malformed).
 
 ```
-func match(pat string, in []string) ([]bool, error) {
+func patternMatch(pat string, in []string) ([]bool, error) {
 	ast, err := parse(pat)
 	if err != nil {
 		return nil, err
@@ -52,6 +52,6 @@ func match(pat string, in []string) ([]bool, error) {
 	for i, s := range in {
 		res[i] = match(&regex, s)
 	}
-	return res
+	return res, nil
 }
 ```
