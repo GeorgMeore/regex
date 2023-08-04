@@ -1,5 +1,13 @@
 package main
 
+func build(regex string) (nfa, error) {
+	ast, err := parse(regex)
+	if err != nil {
+		return nfa{}, err
+	}
+	return compile(ast), nil
+}
+
 func match(regex *nfa, input string) bool {
 	states := []*state{}
 	regex.lastid += 1

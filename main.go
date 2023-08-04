@@ -11,12 +11,11 @@ func main() {
 		fmt.Println("usage: match REGEX")
 		os.Exit(1)
 	}
-	ast, err := parse(os.Args[1])
+	regex, err := build(os.Args[1])
 	if err != nil {
-		fmt.Println("error: regex parsing failed:", err)
+		fmt.Println("error: regex building failed:", err)
 		os.Exit(1)
 	}
-	regex := compile(ast)
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		if match(&regex, scanner.Text()) {
