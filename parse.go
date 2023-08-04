@@ -85,18 +85,27 @@ func (e parsingError) Error() string {
 	return "wanted: " + e.wanted + ", got: '" + string(e.got) + "'"
 }
 
-func isTermChar(c rune) bool {
+func isNonSpecialChar(c rune) bool {
 	switch c {
-	case '|', ')', 0, '*', '?':
+	case '|', '(', ')', 0, '*', '?', '\\':
 		return false
 	}
 	return true
 }
 
-// term ::= rune | '(' alternative ')'
+func isTermChar(c rune) bool {
+	return c == '(' || c == '\\' || isNonSpecialChar(c)
+}
+
+// term ::= rune | '(' alternative ')' | '\' rune
 func parseTerm(input *iterator) (node, error) {
-	if !isTermChar(input.peek()) {
-		return nil, parsingError{"a letter or '('", input.peek()}
+	if input.peek() == '\\' {
+		input.next()
+		if input.peek() == 0 {
+			return nil, parsingError{"a character", input.peek()}
+		}
+		char := char(input.next())
+		return &char, nil
 	}
 	if input.peek() == '(' {
 		input.next()
@@ -110,8 +119,11 @@ func parseTerm(input *iterator) (node, error) {
 		input.next()
 		return alt, nil
 	}
-	char := char(input.next())
-	return &char, nil
+	if isNonSpecialChar(input.peek()) {
+		char := char(input.next())
+		return &char, nil
+	}
+	return nil, parsingError{"a letter or '(' or '\\'", input.peek()}
 }
 
 // quantified ::= term | term '*' | term '?'

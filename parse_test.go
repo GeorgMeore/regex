@@ -9,14 +9,15 @@ type testCase struct {
 }
 
 var cases = []testCase{
-	{in: "a(b|c)*d?", out: "concat{a,concat{star{alt{b,c}},opt{d}}}"},
+	{in: "a(b|c)*d?",  out: "concat{a,concat{star{alt{b,c}},opt{d}}}"},
 	{in: "a(b?|c?)cd", out: "concat{a,concat{alt{opt{b},opt{c}},concat{c,d}}}"},
-	{in: ")abc", err: "wanted: a letter or '(', got: ')'"},
-	{in: "", err: "wanted: a letter or '(', got: EOF"},
-	{in: "?", err: "wanted: a letter or '(', got: '?'"},
-	{in: "(*)", err: "wanted: a letter or '(', got: '*'"},
-	{in: "a(bc", err: "wanted: ')', got: EOF"},
-	{in: "((a)))", err: "wanted: EOF, got: ')'"},
+	{in: ")abc",       err: "wanted: a letter or '(' or '\\', got: ')'"},
+	{in: "",           err: "wanted: a letter or '(' or '\\', got: EOF"},
+	{in: "?",          err: "wanted: a letter or '(' or '\\', got: '?'"},
+	{in: "(*)",        err: "wanted: a letter or '(' or '\\', got: '*'"},
+	{in: "a(bc",       err: "wanted: ')', got: EOF"},
+	{in: "((a)))",     err: "wanted: EOF, got: ')'"},
+	{in: "a\\",        err: "wanted: a character, got: EOF"},
 }
 
 func TestParse(t *testing.T) {
