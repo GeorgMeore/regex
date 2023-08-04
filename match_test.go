@@ -36,6 +36,12 @@ var cases = []testCase{
 		{"aa", true},
 		{"baaaaaa", true},
 	}},
+	{"\\??\\**", []matchResult{
+		{"?*", true},
+		{"**", true},
+		{"", true},
+		{"?", true},
+	}},
 }
 
 func TestMatch(t *testing.T) {

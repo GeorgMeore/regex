@@ -14,10 +14,13 @@ matches a given expression.
 
 ## Supported syntax
 
-There are characters that have special meaning: `(`, `)`, `?`, `*`, `|`
+There are characters that have special meaning: `(`, `)`, `?`, `*`, `|`, `\`.
 
 1. UTF8 runes that have no special meaning match themselves.
 For example `a` matches the character `a`.
+
+1. UTF8 runes prefixed with escape character `\` match themselves.
+For example `\\` matches `\`, `\*` matches `*` and `\a` matches `a`.
 
 1. You can use quantifiers: `?` (one or zero) and `*` (zero or more).
 For example `ab*` matches `a`, `ab`, `abb`, ... .
