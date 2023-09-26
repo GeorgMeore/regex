@@ -11,6 +11,10 @@ func build(regex string) (nfa, error) {
 func match(regex *nfa, input string) bool {
 	states := []*state{}
 	regex.lastid += 1
+	if regex.lastid == 0 {
+		// handle overflow (highly unlikely, just for the sake of correctness)
+		resetRegex(regex)
+	}
 	addState(&states, regex.in, regex.lastid)
 	for _, c := range input {
 		regex.lastid += 1
@@ -25,6 +29,22 @@ func match(regex *nfa, input string) bool {
 		}
 	}
 	return false
+}
+
+func resetRegex(regex *nfa) {
+	regex.lastid = 1
+	resetStates(regex.in)
+}
+
+func resetStates(s *state) {
+	// if s.id is 0 then s was either already reset,
+	// or it was never visited during matching in the first place
+	if s == nil || s.id == 0 {
+		return
+	}
+	s.id = 0
+	resetStates(s.next)
+	resetStates(s.alt)
 }
 
 func addState(l *[]*state, s *state, id int) {
